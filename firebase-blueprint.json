@@ -1,0 +1,121 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "A wedding squad team member",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "name": { "type": "string", "maxLength": 100 },
+        "email": { "type": "string", "maxLength": 150 },
+        "role": { "type": "string", "enum": ["ADMIN", "COORDINATOR", "MEMBER"] },
+        "photoURL": { "type": "string", "maxLength": 500 },
+        "currentVenueArea": { "type": "string", "maxLength": 100 },
+        "availability": { "type": "string", "enum": ["AVAILABLE", "BUSY", "ON_BREAK"] },
+        "locationSharing": { "type": "boolean" },
+        "latitude": { "type": "number" },
+        "longitude": { "type": "number" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["id", "name", "role"]
+    },
+    "Wedding": {
+      "title": "Wedding",
+      "description": "The active wedding event",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "name": { "type": "string", "maxLength": 150 },
+        "coupleName": { "type": "string", "maxLength": 150 },
+        "date": { "type": "string", "maxLength": 20 },
+        "weddingCode": { "type": "string", "maxLength": 20 },
+        "adminId": { "type": "string", "maxLength": 128 },
+        "dayNumber": { "type": "number" },
+        "status": { "type": "string", "enum": ["ACTIVE", "CONCLUDED"] }
+      },
+      "required": ["id", "name", "weddingCode", "adminId"]
+    },
+    "Task": {
+      "title": "Task",
+      "description": "A wedding operation task assigned to a team member",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "weddingId": { "type": "string", "maxLength": 128 },
+        "title": { "type": "string", "maxLength": 200 },
+        "category": { "type": "string", "maxLength": 50 },
+        "description": { "type": "string", "maxLength": 1000 },
+        "assignedUserId": { "type": "string", "maxLength": 128 },
+        "assignedUserName": { "type": "string", "maxLength": 100 },
+        "createdByUserId": { "type": "string", "maxLength": 128 },
+        "createdByName": { "type": "string", "maxLength": 100 },
+        "priority": { "type": "string", "enum": ["NORMAL", "URGENT"] },
+        "status": { "type": "string", "enum": ["PENDING", "IN_PROGRESS", "COMPLETED"] },
+        "dueTime": { "type": "string", "maxLength": 50 },
+        "location": { "type": "string", "maxLength": 150 },
+        "isQuickTask": { "type": "boolean" },
+        "createdAt": { "type": "number" },
+        "helpRequested": { "type": "boolean" },
+        "helpReason": { "type": "string", "maxLength": 300 },
+        "declinedReason": { "type": "string", "maxLength": 300 }
+      },
+      "required": ["id", "weddingId", "title", "assignedUserId", "priority", "status"]
+    },
+    "VoiceNote": {
+      "title": "VoiceNote",
+      "description": "A quick walkie-talkie voice announcement or direct voice note",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "weddingId": { "type": "string", "maxLength": 128 },
+        "senderId": { "type": "string", "maxLength": 128 },
+        "senderName": { "type": "string", "maxLength": 100 },
+        "senderRole": { "type": "string", "enum": ["ADMIN", "COORDINATOR", "MEMBER"] },
+        "recipientId": { "type": "string", "maxLength": 128 },
+        "recipientName": { "type": "string", "maxLength": 100 },
+        "audioUrl": { "type": "string" },
+        "durationSeconds": { "type": "number" },
+        "timestamp": { "type": "number" },
+        "transcription": { "type": "string", "maxLength": 500 },
+        "listened": { "type": "boolean" }
+      },
+      "required": ["id", "weddingId", "senderId", "recipientId", "durationSeconds"]
+    },
+    "JoinRequest": {
+      "title": "JoinRequest",
+      "description": "A request to join a wedding squad",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "weddingId": { "type": "string", "maxLength": 128 },
+        "userName": { "type": "string", "maxLength": 100 },
+        "requestedRole": { "type": "string", "enum": ["ADMIN", "COORDINATOR", "MEMBER"] },
+        "timestamp": { "type": "number" },
+        "status": { "type": "string", "enum": ["PENDING", "APPROVED", "REJECTED"] }
+      },
+      "required": ["id", "weddingId", "userName", "status"]
+    }
+  },
+  "firestore": {
+    "/weddings/{weddingId}": {
+      "schema": { "$ref": "#/entities/Wedding" },
+      "description": "Active wedding configurations"
+    },
+    "/weddings/{weddingId}/tasks/{taskId}": {
+      "schema": { "$ref": "#/entities/Task" },
+      "description": "Tasks for a specific wedding"
+    },
+    "/weddings/{weddingId}/voiceNotes/{voiceNoteId}": {
+      "schema": { "$ref": "#/entities/VoiceNote" },
+      "description": "Walkie-talkie voice notes for a specific wedding"
+    },
+    "/weddings/{weddingId}/teamMembers/{memberId}": {
+      "schema": { "$ref": "#/entities/User" },
+      "description": "Squad team members in a wedding"
+    },
+    "/weddings/{weddingId}/joinRequests/{requestId}": {
+      "schema": { "$ref": "#/entities/JoinRequest" },
+      "description": "Join requests for this wedding"
+    }
+  }
+}

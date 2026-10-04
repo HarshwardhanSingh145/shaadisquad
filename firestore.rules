@@ -1,0 +1,65 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // Default deny catch-all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Wedding Root Documents
+    match /weddings/{weddingId} {
+      allow get: if isSignedIn() && isValidId(weddingId);
+      allow list: if isSignedIn();
+      allow create: if isSignedIn() && isValidId(weddingId) && incoming().adminId == request.auth.uid;
+      allow update: if isSignedIn() && isValidId(weddingId);
+      allow delete: if isSignedIn() && isValidId(weddingId) && existing().adminId == request.auth.uid;
+
+      // Team Members Subcollection
+      match /teamMembers/{memberId} {
+        allow get, list: if isSignedIn() && isValidId(weddingId);
+        allow create, update: if isSignedIn() && isValidId(weddingId) && isValidId(memberId);
+        allow delete: if isSignedIn() && isValidId(weddingId) && isValidId(memberId);
+      }
+
+      // Tasks Subcollection
+      match /tasks/{taskId} {
+        allow get, list: if isSignedIn() && isValidId(weddingId);
+        allow create: if isSignedIn() && isValidId(weddingId) && isValidId(taskId);
+        allow update: if isSignedIn() && isValidId(weddingId) && isValidId(taskId);
+        allow delete: if isSignedIn() && isValidId(weddingId) && isValidId(taskId);
+      }
+
+      // Voice Notes Subcollection
+      match /voiceNotes/{voiceNoteId} {
+        allow get, list: if isSignedIn() && isValidId(weddingId);
+        allow create: if isSignedIn() && isValidId(weddingId) && isValidId(voiceNoteId);
+        allow update: if isSignedIn() && isValidId(weddingId) && isValidId(voiceNoteId);
+        allow delete: if isSignedIn() && isValidId(weddingId) && isValidId(voiceNoteId);
+      }
+
+      // Join Requests Subcollection
+      match /joinRequests/{requestId} {
+        allow get, list: if isSignedIn() && isValidId(weddingId);
+        allow create, update, delete: if isSignedIn() && isValidId(weddingId) && isValidId(requestId);
+      }
+    }
+  }
+}

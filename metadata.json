@@ -1,0 +1,6 @@
+{
+  "name": "Shaadi Squad",
+  "description": "Real-time Wedding Team Management & Work Assignment App. Har kaam, sahi insaan, sahi waqt.",
+  "requestFramePermissions": ["geolocation", "microphone"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
